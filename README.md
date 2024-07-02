@@ -10,7 +10,6 @@ Some boilerplate for working with C/C++ projects in Windows using WSL.
     Ctl+Shift+P -> Debug: Add Configuration
 
 Build:
-Ctl+Shift+B
-
+    Ctl+Shift+B
 Debug:
-select "(gdb) Launch" or F5
+    select "(gdb) Launch" or F5
