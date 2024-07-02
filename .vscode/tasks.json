@@ -2,37 +2,36 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "create-build-dir",
+        "label": "build-with-cmake",
         "type": "shell",
-        "command": "mkdir",
+        "command": "cmake",
         "args": [
-          "-p",
-          "${workspaceFolder}/build"
+          "-B", "${workspaceFolder}/build", "-GNinja"
         ],
         "group": {
           "kind": "build",
           "isDefault": true
         },
         "problemMatcher": [],
-        "detail": "Create build directory if it doesn't exist"
+        "detail": "Build project using make."
       },
       {
-        "label": "build",
+        "label": "build with ninja",
         "type": "shell",
-        "command": "make",
+        "command": "ninja",
+        "args": ["-C", "build"],
         "group": {
-          "kind": "build",
-
-          "isDefault": true
+            "kind": "build",
+            "isDefault": true
         },
-        "dependsOn": "create-build-dir",  
-        "problemMatcher": [],
-        "detail": "Build project using make."
+        "dependsOn": ["build-with-cmake"],
+        "problemMatcher": ["$gcc"]
       },
       {
         "label": "clean",
         "type": "shell",
-        "command": "make clean",
+        "command": "rm",
+        "args": ["-rf","build"],
         "group": {
           "kind": "build",
           "isDefault": true
