@@ -16,6 +16,10 @@ Debug:
 select "(gdb) Launch" or F5
 
 ## Makefile
+Using GNU Make, see documentation here:
+https://www.gnu.org/software/make/manual/make.html
+
+
 Explanation of the Makefile Components
 Variables:
 
