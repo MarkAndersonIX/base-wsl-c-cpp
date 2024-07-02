@@ -1,0 +1,4 @@
+# ninja log v5
+79	183	1719905640560810600	main.out	2ff0b4eb987ef51f
+6	74	1719905640436208100	CMakeFiles/main.out.dir/src/HelloWorld.cpp.o	aa3eb10a9809a0ae
+7	59	1719905640435214700	CMakeFiles/main.out.dir/src/main.cpp.o	86cdec0ee6d344f8

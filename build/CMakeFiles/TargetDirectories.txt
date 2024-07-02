@@ -1,0 +1,3 @@
+/mnt/d/Training/c++/base-wsl-c-cpp/build/CMakeFiles/main.out.dir
+/mnt/d/Training/c++/base-wsl-c-cpp/build/CMakeFiles/edit_cache.dir
+/mnt/d/Training/c++/base-wsl-c-cpp/build/CMakeFiles/rebuild_cache.dir

@@ -13,3 +13,8 @@ Build:
     Ctl+Shift+B
 Debug:
     select "(gdb) Launch" or F5
+
+## Current Branches:
+1. cpp-gpp: C++ using G++ build.
+2. cpp-make: C++ using GNU Make.
+3. cpp-ninja: C++ using CMake + Ninja build.
