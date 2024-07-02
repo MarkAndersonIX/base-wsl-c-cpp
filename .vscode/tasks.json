@@ -2,21 +2,51 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "build",
+        "label": "create-build-dir",
         "type": "shell",
-        "command": "gcc",
+        "command": "mkdir",
         "args": [
-          "-g",
-          "${file}",
-          "-o",
-          "${fileDirname}/${fileBasenameNoExtension}"
+          "-p",
+          "${workspaceFolder}/build"
         ],
         "group": {
           "kind": "build",
           "isDefault": true
         },
+        "problemMatcher": [],
+        "detail": "Create build directory if it doesn't exist"
+      },
+      {
+        "label": "build",
+        "type": "shell",
+        "command": "g++",
+        "args": [
+          "-g",
+          "${workspaceFolder}/src/*.cpp",
+          "-I",
+          "${workspaceFolder}/include",
+          "-o",
+          "${workspaceFolder}/build/main.out"
+        ],
+        "group": {
+          "kind": "build",
+
+          "isDefault": true
+        },
+        "dependsOn": "create-build-dir",
         "problemMatcher": ["$gcc"],
         "detail": "Generated task for GCC."
+      },
+      {
+        "label": "clean",
+        "type": "shell",
+        "command": "rm",
+        "args": ["-rf", "${workspaceFolder}/build"],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
       }
     ]
   }
