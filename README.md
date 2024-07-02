@@ -9,11 +9,8 @@ Some boilerplate for working with C/C++ projects in Windows using WSL.
 5. Create [launch.json](.vscode/launch.json)
     Ctl+Shift+P -> Debug: Add Configuration
 
-Build:
-Ctl+Shift+B
-
-Debug:
-select "(gdb) Launch" or F5
+TODO:
+Update debugging configuration
 
 ## Ninja
 https://ninja-build.org/
