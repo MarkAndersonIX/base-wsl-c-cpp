@@ -19,34 +19,26 @@
       {
         "label": "build",
         "type": "shell",
-        "command": "g++",
-        "args": [
-          "-g",
-          "${workspaceFolder}/src/*.cpp",
-          "-I",
-          "${workspaceFolder}/include",
-          "-o",
-          "${workspaceFolder}/build/main.out"
-        ],
+        "command": "make",
         "group": {
           "kind": "build",
 
           "isDefault": true
         },
-        "dependsOn": "create-build-dir",
-        "problemMatcher": ["$gcc"],
-        "detail": "Generated task for GCC."
+        "dependsOn": "create-build-dir",  
+        "problemMatcher": [],
+        "detail": "Build project using make."
       },
       {
         "label": "clean",
         "type": "shell",
-        "command": "rm",
-        "args": ["-rf", "${workspaceFolder}/build"],
+        "command": "make clean",
         "group": {
           "kind": "build",
           "isDefault": true
         },
-        "problemMatcher": []
+        "problemMatcher": [],
+        "detail": "Clean the project using make."
       }
     ]
   }
