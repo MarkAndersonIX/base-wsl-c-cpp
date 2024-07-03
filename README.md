@@ -1,116 +1,95 @@
-# base-wsl-c-cpp
-Some boilerplate for working with C/C++ projects in Windows using WSL.
+# Pybind11 Python Build Base
+Some boilerplate for working with C/C++ bindings for Python in Windows using WSL.
 
+## Environment
 1. Install WSL
 2. apt install build-essentials gdb
 3. Install C/C++ extension in VSCode
-4. Create [tasks.json](.vscode/tasks.json)
-    Ctl+Shift+P -> Configure Tasks
-5. Create [launch.json](.vscode/launch.json)
-    Ctl+Shift+P -> Debug: Add Configuration
+4. Install Python extension in VSCode
+5. Install Anaconda
+6. Create conda env "pybind11":
+  `conda env create -n pybind11 pybind11`
 
-TODO:
-Update debugging configuration
-
-## Ninja
-https://ninja-build.org/
-
-apt-get install ninja-build
-
-#### CMake
-Ninja uses CMake
-
-`apt-get install ninja-build`
-
-#### CMakeLists.txt
-Create or update CMakeLists.txt in the root directory of your project:
+### Update c_cpp_properties.json
+You can find the includes for pybind using the follow command if you need to reference them:
+```
+python -m pybind11 --includes
+```
+Specifically the site-packages path.
+This can be added to c_cpp_properties.json to resolve the include lint:
 
 ```
-cmake_minimum_required(VERSION 3.22)
-project(MyProject)
-
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-# Define source and include directories
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
-
-# Gather source files
-file(GLOB SOURCES
-    "${SOURCE_DIR}/*.cpp"
-)
-
-# Add executable target
-add_executable(main.out ${SOURCES})
-
-# Include directories for the target
-target_include_directories(main.out PRIVATE
-    ${INCLUDE_DIR}
-)
+...
+              "includePath": [
+                  "${workspaceFolder}/**",
+                  "${workspaceFolder}/include",
+                  "/some/path/to/site-packages/pybind11/include"
+              ]
+...
 ```
 
-#### Explanation
-cmake_minimum_required(VERSION 3.10): Specifies the minimum version of CMake required to build the project.
+### Create setup.py
+Assuming we have a c++ project with source file HelloWorld.cpp and headers in include/, we create a setup.py which will gather modules and define a setup for building bindings with pybind11.
 
-`project(MyProject)`: Defines the project name.
+##### Extension Module Definition (ext_modules):
+1.  Defines an extension module (Extension) named 'helloworld'.
+2.  Specifies the source file ('src/HelloWorld.cpp') containing the C++ code to be compiled.
 
-`set(CMAKE_CXX_STANDARD 11)`: Sets the C++ standard to C++11. Adjust this according to your project's requirements (C++14, C++17, etc.).
+##### Includes directories (include_dirs):
+pybind11_include: Directory containing pybind11 headers.
+'include': Additional include directories for any other headers needed by the C++ code.
+Specifies the language as 'c++' for C++ compilation.
 
-`set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")`: Defines the source directory where the .cpp files are located. ${CMAKE_CURRENT_SOURCE_DIR} is a CMake variable representing the current source directory.
+##### Setup Configuration (setup()):
+- name='helloworld': Name of the Python package/module.
+- version='0.1': Version number of the package/module.
+- ext_modules=ext_modules: List of extension modules to be built, defined earlier.
+- cmdclass={'build_ext': build_ext}: Specifies the command class to use (build_ext) handling the build process of extension modules.
+- script_args=['build_ext', '--build-lib', 'build/']: Additional script arguments for the setup process:
+  - 'build_ext': Command to build extension modules.
+  - '--build-lib', 'build/': Specifies the build directory ('build/') where the compiled extension module will be placed.
 
-`set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")`: Defines the include directory where the .h or .hpp header files are located.
+### main.py
+Import the compiled bindings and test output.
+```
+from build import helloworld
 
-`file(GLOB SOURCES "${SOURCE_DIR}/*.cpp")`: Uses file(GLOB ...) to gather all .cpp files from the src directory into the SOURCES variable. This approach 
-collects all .cpp files dynamically at configuration time.
+hello = helloworld.HelloWorld("World")
+hello.sayHello()  # Output: Hello, World!
+```
 
-`add_executable(main.out ${SOURCES})`: Creates an executable target named main.out using the source files specified in the SOURCES variable. This command tells CMake to compile all .cpp files listed in SOURCES into an executable named main.out.
-
-`target_include_directories(main.out PRIVATE ${INCLUDE_DIR})`: Specifies the include directories (include/ in this case) for the main.out target. The PRIVATE keyword ensures that these directories are only applied to the main.out target and not propagated to other targets.
-
-Summary
-This CMakeLists.txt snippet sets up a CMake project named MyProject with:
-
-C++ standard set to C++11 (set(CMAKE_CXX_STANDARD 11)).
-Source files gathered from the src/ directory using file(GLOB ...).
-An executable target (main.out) created from the gathered source files.
-Include directories (include/) specified for the executable target (main.out).
-
-### Ninja Build
-From the CMakeLists.txt file we can generate Ninja build files.
-
-1.  Generate Ninja Build Files:
-`cmake -B build -GNinja`
-2.  Build project:
-`ninja -C build`
-
-To add this to tasks.json we can add steps to generate cmake files as a dependency to the ninja compilation:
+### tasks.json
 ```
       {
-        "label": "build-with-cmake",
+        "label": "build-pybind11",
         "type": "shell",
-        "command": "cmake",
-        "args": [
-          "-B", "${workspaceFolder}/build", "-GNinja"
-        ],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "problemMatcher": [],
-        "detail": "Build project using make."
-      },
-      {
-        "label": "build with ninja",
-        "type": "shell",
-        "command": "ninja",
-        "args": ["-C", "build"],
+        "command": "python",
+        "args": ["setup.py","build_ext","--inplace"],
         "group": {
             "kind": "build",
             "isDefault": true
         },
-        "dependsOn": ["build-with-cmake"],
-        "problemMatcher": ["$gcc"]
+        "problemMatcher": [],
+        "detail": "Builds project python bindings using python and pybind11"
       },
 ```
+Given that we've added our wsl conda environment as the python interpreter (Ctl+Shift+P -> "Python Interpreter"), we should be able to call this and have setup.py build python bindings for our c++ project.
+
+```
+ *  Executing task: python setup.py build_ext --inplace 
+
+running build_ext
+building 'helloworld' extension
+creating build
+creating build/temp.linux-x86_64-cpython-312
+creating build/temp.linux-x86_64-cpython-312/src
+gcc -pthread -B /home/user/anaconda3/envs/pybind11/compiler_compat -fno-strict-overflow -DNDEBUG -O2 -Wall -fPIC -O2 -isystem /home/user/anaconda3/envs/pybind11/include -fPIC -O2 -isystem /home/user/anaconda3/envs/pybind11/include -fPIC -I/home/user/anaconda3/envs/pybind11/lib/python3.12/site-packages/pybind11/include -Iinclude -I/home/user/anaconda3/envs/pybind11/include/python3.12 -c src/HelloWorld.cpp -o build/temp.linux-x86_64-cpython-312/src/HelloWorld.o
+g++ -pthread -B /home/user/anaconda3/envs/pybind11/compiler_compat -shared -Wl,-rpath,/home/user/anaconda3/envs/pybind11/lib -Wl,-rpath-link,/home/user/anaconda3/envs/pybind11/lib -L/home/user/anaconda3/envs/pybind11/lib -Wl,-rpath,/home/user/anaconda3/envs/pybind11/lib -Wl,-rpath-link,/home/user/anaconda3/envs/pybind11/lib -L/home/user/anaconda3/envs/pybind11/lib build/temp.linux-x86_64-cpython-312/src/HelloWorld.o -o build/helloworld.cpython-312-x86_64-linux-gnu.so
+ *  Terminal will be reused by tasks, press any key to close it. 
+
+ *  Executing task: python main.py 
+
+Hello World, from pybind11!
+
+ *  Terminal will be reused by tasks, press any key to close it.
+ ```
